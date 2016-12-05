@@ -1,14 +1,18 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import {Row, Col, Button, ProgressBar} from 'react-bootstrap';
 
 var component;
 const epochOfRender = new Date().getTime();
 
 class VoteField extends Component {
-
+   /* static propTypes = {
+        value: React.PropTypes.number.isRequired
+    };
+*/
     constructor(props) {
         super(props);
-
+        console.log("got a lot of props: " + JSON.stringify(props));
+        console.log("this " + JSON.stringify(this.props))
         component = this;
         //this.handleChange = this.handleChange.bind(this);
         this.setupSocket = this.setupSocket.bind(this);
@@ -16,7 +20,7 @@ class VoteField extends Component {
         this.submit = this.submit.bind(this);
         this.fail = this.fail.bind(this);
         this.readIllnesses = this.readIllnesses.bind(this);
-        this.state = {value: 50, loading: true};
+        this.state = {value: props.state, loading: true};
         this.ws = new WebSocket("ws://localhost:9000/voting");
         this.setupSocket(this.ws);
 
@@ -24,7 +28,6 @@ class VoteField extends Component {
 
     submit(voteVal) {
         console.log("Submitting");
-        console.log(this.state.value);
         var registerVoteCommand =
             {
                 type: "RegisterVoteCommand",
@@ -66,8 +69,8 @@ class VoteField extends Component {
                     </Col>
                     <Col sm={6}>
                         <ProgressBar disabled={loading}>
-                            <ProgressBar active bsStyle="success" now={this.state.value} key={1} />
-                            <ProgressBar active bsStyle="warning" now={100 - this.state.value} key={2} />
+                            <ProgressBar active bsStyle="success" now={this.props.state} key={1} />
+                            <ProgressBar active bsStyle="warning" now={100 - this.props.state} key={2} />
                         </ProgressBar>
                     </Col>
                     <Col sm={3} className="text-right">
@@ -109,10 +112,17 @@ class VoteField extends Component {
         };
 
         webSocket.onmessage = function (msg) {
-            component.setState({
-                value: parseInt(msg.data,10)});
+            console.log("got this state from backend: " +parseInt(msg.data, 10))
+            component.props.registerVote(parseInt(msg.data, 10));
+            /*component.setState({
+                value: parseInt(msg.data,10)});*/
         }
     }
 }
 
+VoteField.propTypes = {
+    registerVote: PropTypes.func.isRequired
+};
+
 export default VoteField;
+

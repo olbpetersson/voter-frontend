@@ -1,16 +1,18 @@
 import React, {Component} from 'react';
 import {Grid} from 'react-bootstrap';
 
-import VoteField from './VoteField'
+import VoteFieldContainer from './VoteFieldContainer'
 
 class Container extends Component {
+
+
     render() {
         return (
             <Grid>
                 <div className="well">
                     <h3 className="text-center">Upvote vs downvote</h3>
                     <div>
-                        <VoteField/>
+                        <VoteFieldContainer />
                     </div>
                 </div>
             </Grid>

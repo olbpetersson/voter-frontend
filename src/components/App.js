@@ -4,11 +4,13 @@ import Header from './Header';
 import Container from './Container';
 
 class App extends Component {
+
     render() {
+
         return (
             <div className="App">
                 <Header/>
-                <Container/>
+                <Container />
             </div>
         );
     }
