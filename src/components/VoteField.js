@@ -5,23 +5,18 @@ var component;
 const epochOfRender = new Date().getTime();
 
 class VoteField extends Component {
-   /* static propTypes = {
-        value: React.PropTypes.number.isRequired
-    };
-*/
+
     constructor(props) {
         super(props);
         console.log("got a lot of props: " + JSON.stringify(props));
         console.log("this " + JSON.stringify(this.props))
         component = this;
-        //this.handleChange = this.handleChange.bind(this);
         this.setupSocket = this.setupSocket.bind(this);
         this.setState = this.setState.bind(this);
         this.submit = this.submit.bind(this);
         this.fail = this.fail.bind(this);
-        this.readIllnesses = this.readIllnesses.bind(this);
         this.state = {value: props.state, loading: true};
-        this.ws = new WebSocket("ws://localhost:9000/voting");
+        this.ws = new WebSocket("ws://localhost:8080/voting");
         this.setupSocket(this.ws);
 
     }
@@ -46,12 +41,6 @@ class VoteField extends Component {
         var failure = {type: "FailureCMD"};
         console.log(failure);
         this.ws.send(JSON.stringify(failure));
-    }
-
-    readIllnesses() {
-        var readCmd = {type: "ReadIllnessesCmd"};
-        console.log(readCmd);
-        this.ws.send(JSON.stringify(readCmd));
     }
 
     render() {
@@ -112,10 +101,8 @@ class VoteField extends Component {
         };
 
         webSocket.onmessage = function (msg) {
-            console.log("got this state from backend: " +parseInt(msg.data, 10))
+            console.log("got this state from backend: " + parseInt(msg.data, 10));
             component.props.registerVote(parseInt(msg.data, 10));
-            /*component.setState({
-                value: parseInt(msg.data,10)});*/
         }
     }
 }

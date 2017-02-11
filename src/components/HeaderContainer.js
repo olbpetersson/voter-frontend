@@ -1,23 +1,23 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
-import VoteField from './VoteField';
-import {registerVote} from '../actions'
+import Header from './Header';
+import {loginUser} from '../actions/login'
 
 class VoteFieldContainer extends Component {
     render() {
-        return <VoteField registerVote={registerVote}/>
+        return <Header loginUser={loginUser}/>
     }
 }
 
 function mapStateToProps(state) {
     return {
-        state: state.votes
+        state: state.user
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        registerVote: (int) => dispatch(registerVote(int))
+        loginUser: (user) => dispatch(loginUser(user))
     }
 }
 
@@ -25,4 +25,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(VoteField);
+)(Header);

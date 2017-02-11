@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-
-import Header from './Header';
+import Helmet from 'react-helmet';
+import HeaderContainer from './HeaderContainer';
 import Container from './Container';
 
 class App extends Component {
@@ -9,11 +9,12 @@ class App extends Component {
 
         return (
             <div className="App">
-                <Header/>
+                <HeaderContainer />
                 <Container />
             </div>
         );
     }
+
 }
 
 export default App;
