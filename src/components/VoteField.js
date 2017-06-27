@@ -1,8 +1,11 @@
-import React, {Component, PropTypes} from 'react';
-import {Row, Col, Button, ProgressBar} from 'react-bootstrap';
+import React, {Component, PropTypes} from "react";
+import {Col, Row, Grid} from "react-bootstrap";
+import RegisterVoteCommandDto from "./dto/RegisterVoteCommandDto";
+import NewVotingCommand from "./dto/NewVotingCommand";
+import VoteOptionButton from "./VoteOptionButton";
+import VoteProgressBar from "./VoteProgressBar";
 
 var component;
-const epochOfRender = new Date().getTime();
 
 class VoteField extends Component {
 
@@ -15,25 +18,21 @@ class VoteField extends Component {
         this.setState = this.setState.bind(this);
         this.submit = this.submit.bind(this);
         this.fail = this.fail.bind(this);
-        this.state = {value: props.state, loading: true};
-        this.ws = new WebSocket("ws://localhost:8080/voting");
-        this.setupSocket(this.ws);
+        this.state = {name: "apa", description: "Vad föredrar du?", optionA: "Downvote", optionB: "Upvote", value: 50, loading: true};
+        this.webSocket = undefined;
+        this.setupSocket("apa");
 
     }
 
-    submit(voteVal) {
+    submit(votingOption) {
         console.log("Submitting");
-        var registerVoteCommand =
-            {
-                type: "RegisterVoteCommand",
-                payload: {
-                    voteValue: voteVal,
-                    epochUuid: epochOfRender
-                }
-            };
+        var registerVoteCommand = new RegisterVoteCommandDto(this.state.name,
+            votingOption
+        );
 
-        console.log(registerVoteCommand);
-        this.ws.send(JSON.stringify(registerVoteCommand));
+        console.log("Sending a register vote command" + JSON.stringify(registerVoteCommand));
+
+        component.webSocket.send(JSON.stringify(registerVoteCommand));
     }
 
     fail() {
@@ -44,65 +43,56 @@ class VoteField extends Component {
     }
 
     render() {
-        let loading = this.state.loading;
         return (
-            <div>
-                <Row>
-                    <Col sm={3}>
-                        <Button
-                            bsStyle="warning"
-                            disabled={loading}
-                            onClick={() => this.submit(-1)}>
-                            Downvote
-                        </Button>
-                    </Col>
-                    <Col sm={6}>
-                        <ProgressBar disabled={loading}>
-                            <ProgressBar active bsStyle="success" now={this.props.state} key={1} />
-                            <ProgressBar active bsStyle="warning" now={100 - this.props.state} key={2} />
-                        </ProgressBar>
-                    </Col>
-                    <Col sm={3} className="text-right">
-                        <Button
-                            bsStyle="success"
-                            disabled={loading}
-                            onClick={() => this.submit(1)}>
-                            Upvote
-                        </Button>
-                    </Col>
-                </Row>
-                <Row className="text-center">
-                    <Button
-                        bsStyle="danger"
-                        disabled={loading}
-                        onClick={this.fail}>
-                        Crasch it!
-                    </Button>
-                </Row>
-            </div>
+            <Grid>
+                <div className="well">
+                    <h3 className="text-center">{this.state.description}</h3>
+                    <div>
+                        <Row>
+                            <Col sm={3}>
+                                <VoteOptionButton bsStyle="warning" submit={this.submit} label={this.state.optionA}
+                                                  loading={this.loading}/>
+                            </Col>
+                            <Col sm={6}>
+                                <VoteProgressBar percentage={this.props.state}/>
+                            </Col>
+                            <Col sm={3} className="text-right">
+                                <VoteOptionButton submit={this.submit} label={this.state.optionB} loading={this.loading}/>
+                            </Col>
+                        </Row>
+                    </div>
+                </div>
+            </Grid>
+
         );
     }
 
 
-    setupSocket = function (webSocket) {
-        webSocket.onopen = function () {
+    setupSocket = function (endpoint) {
+        component.webSocket = new WebSocket("ws://localhost:9000/stream/" + endpoint);
+        component.webSocket.onopen = function () {
             component.setState({loading: false});
             console.log("socket open and ready!");
-            var voteStandingsCommand =
-                {
-                    type: "VoteStandingsCommand",
-                    payload: {}
-                };
-            webSocket.send(JSON.stringify(voteStandingsCommand));
+
+            var newVotingCommand = new NewVotingCommand("apa", "Vad föredrar du?", "Java", "C#", "test");
+
+            component.setState({name: "apa", optionA: "Java", optionB: "C#"});
+            console.log("sending newVotingCommand!", newVotingCommand);
+            component.webSocket.send(JSON.stringify(newVotingCommand));
         };
 
-        webSocket.onclose = function () {
+        component.webSocket.onclose = function () {
             component.setState({loading: true});
         };
 
-        webSocket.onmessage = function (msg) {
-            console.log("got this state from backend: " + parseInt(msg.data, 10));
-            component.props.registerVote(parseInt(msg.data, 10));
+        component.webSocket.onmessage = function (msg) {
+            console.log("got this state from backend: " + msg.data);
+            var newState = JSON.parse(msg.data);
+            component.setState({
+                name: newState.votingName, optionA: newState.votingOptionA.votingName,
+                optionB: newState.votingOptionB.votingName
+            });
+            component.props.registerVote(msg.data);
         }
     }
 }

@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import VoteField from './VoteField';
 import {registerVote} from '../actions'
@@ -17,10 +17,12 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        registerVote: (int) => dispatch(registerVote(int))
+        registerVote: (newState) => {
+            console.log("this is newState " + newState)
+            dispatch(registerVote(newState));
+        }
     }
 }
-
 
 export default connect(
     mapStateToProps,

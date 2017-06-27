@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import Helmet from 'react-helmet';
 import HeaderContainer from './HeaderContainer';
-import Container from './Container';
+import VoteFieldContainer from './VoteFieldContainer';
 
 class App extends Component {
 
@@ -10,7 +9,7 @@ class App extends Component {
         return (
             <div className="App">
                 <HeaderContainer />
-                <Container />
+                <VoteFieldContainer />
             </div>
         );
     }
