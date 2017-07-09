@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 import {Col, Row, Grid} from "react-bootstrap";
 import RegisterVoteCommandDto from "./dto/RegisterVoteCommandDto";
-import NewVotingCommand from "./dto/NewVotingCommand";
+import VoteStandingsCommand from "./dto/VoteStandingsCommand";
 import VoteOptionButton from "./VoteOptionButton";
 import VoteProgressBar from "./VoteProgressBar";
 
@@ -11,6 +11,8 @@ class VoteField extends Component {
 
     constructor(props) {
         super(props);
+        console.log("the props we have", props);
+        var endpath = props.location.pathname;
         console.log("got a lot of props: " + JSON.stringify(props));
         console.log("this " + JSON.stringify(this.props))
         component = this;
@@ -18,9 +20,9 @@ class VoteField extends Component {
         this.setState = this.setState.bind(this);
         this.submit = this.submit.bind(this);
         this.fail = this.fail.bind(this);
-        this.state = {name: "apa", description: "Vad föredrar du?", optionA: "Downvote", optionB: "Upvote", value: 50, loading: true};
+        this.state = {name: "Loading", description: "Loading", optionA: "Loading", optionB: "Loading", value: 50, loading: true};
         this.webSocket = undefined;
-        this.setupSocket("apa");
+        this.setupSocket(endpath);
 
     }
 
@@ -44,7 +46,6 @@ class VoteField extends Component {
 
     render() {
         return (
-            <Grid>
                 <div className="well">
                     <h3 className="text-center">{this.state.description}</h3>
                     <div>
@@ -62,23 +63,21 @@ class VoteField extends Component {
                         </Row>
                     </div>
                 </div>
-            </Grid>
-
         );
     }
 
 
     setupSocket = function (endpoint) {
-        component.webSocket = new WebSocket("ws://localhost:9000/stream/" + endpoint);
+        component.webSocket = new WebSocket("ws://localhost:9000/stream" + endpoint);
         component.webSocket.onopen = function () {
             component.setState({loading: false});
             console.log("socket open and ready!");
 
-            var newVotingCommand = new NewVotingCommand("apa", "Vad föredrar du?", "Java", "C#", "test");
-
-            component.setState({name: "apa", optionA: "Java", optionB: "C#"});
-            console.log("sending newVotingCommand!", newVotingCommand);
-            component.webSocket.send(JSON.stringify(newVotingCommand));
+            //var newVotingCommand = new NewVotingCommand("apa", "Vad föredrar du?", "Java", "C#", "test");
+            var voteStandingsCommand = new VoteStandingsCommand(endpoint.replace("/", ""));
+            //component.setState({name: "apa", optionA: "Java", optionB: "C#"});
+            console.log("sending voteStandingsCommand!", voteStandingsCommand);
+            component.webSocket.send(JSON.stringify(voteStandingsCommand));
         };
 
         component.webSocket.onclose = function () {
@@ -90,6 +89,7 @@ class VoteField extends Component {
             var newState = JSON.parse(msg.data);
             component.setState({
                 name: newState.votingName, optionA: newState.votingOptionA.votingName,
+                description: newState.description,
                 optionB: newState.votingOptionB.votingName
             });
             component.props.registerVote(msg.data);

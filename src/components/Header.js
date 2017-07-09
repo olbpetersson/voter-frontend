@@ -32,6 +32,16 @@ class Header extends Component {
 
     responseGoogle(e){
         console.log("response", e);
+        fetch("http://localhost:9000/token", {
+                method: "POST",
+                body: e.accessToken,
+            }
+        ).then(function(response){
+            console.log("Got a response", response);
+        }).catch(function(error){
+            console.log("there was an error", error);
+        });
+
         component.props.loginUser({username: "test"});
     }
 }
