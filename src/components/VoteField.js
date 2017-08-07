@@ -14,7 +14,7 @@ class VoteField extends Component {
         console.log("the props we have", props);
         var endpath = props.location.pathname;
         console.log("got a lot of props: " + JSON.stringify(props));
-        console.log("this " + JSON.stringify(this.props))
+        console.log("this " + JSON.stringify(this.props));
         component = this;
         this.setupSocket = this.setupSocket.bind(this);
         this.setState = this.setState.bind(this);
@@ -81,7 +81,7 @@ class VoteField extends Component {
         };
 
         component.webSocket.onclose = function () {
-            component.setState({loading: true});
+            component.setState({description: "Disconnected :(", loading: true});
         };
 
         component.webSocket.onmessage = function (msg) {
@@ -102,4 +102,3 @@ VoteField.propTypes = {
 };
 
 export default VoteField;
-

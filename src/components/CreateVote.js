@@ -41,7 +41,16 @@ class CreateVote extends Component {
     submit(){
         var newVotingDto = new NewVotingCommand(this.state.name, this.state.description, this.state.optionA,
             this.state.optionB, this.state.closeAfter, "test");
-        console.log("fetching with ", newVotingDto);
+        console.log("Sending new voting command", newVotingDto);
+        /*fetch("http://localhost:9000/read", {
+                method: "GET",
+            }
+        ).then(function(response){
+            console.log("Got a response", response.text().then(function(apa){console.log(apa)}));
+            browserHistory.push('/' + component.state.name);
+        }).catch(function(error){
+            console.log("there was an error", error);
+        });*/
         fetch("http://localhost:9000/voting/" + this.state.name, {
                 method: "POST",
                 body: JSON.stringify(newVotingDto),
